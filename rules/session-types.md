@@ -49,13 +49,17 @@ Every Claude Code conversation falls into one of four types. Identify the type f
 
 **Workflow:**
 1. Recognize this is a multi-step build (not a quick fix).
-2. Scaffold a project automatically — no need to ask. (One folder + one README is the minimum.)
-3. Invoke the `project-manager` skill, which kicks off the full Superpowers chain (brainstorm, plan, execute, ship).
+2. Invoke the `project-scaffolder` skill — no need to ask. It creates `projects/<slug>/` with a full rich-context README, an empty `plan.md`, and an empty `report.md`.
+3. Invoke the `project-manager` skill, which picks up the freshly-scaffolded project and kicks off the full Superpowers chain (brainstorm, plan, execute, ship).
 
 **Rules:**
-- If clearly multi-step, scaffold without asking. The tracker is the system of record and every meaningful piece of work belongs there.
+- If clearly multi-step, scaffold without asking. The filesystem (and tracker, if you use one) is the system of record and every meaningful piece of work belongs there.
 - If genuinely ambiguous (could be a quick fix or a project), ask once: *"This could go either way — want me to scaffold a project for this, or just handle it inline?"*
 - Quick fixes never get scaffolded. The line: if it can be described in one sentence and fixed in under 30 minutes, it's a quick fix.
+
+## Spin-off ideas mid-session
+
+A fifth pattern surfaces mid-project: an idea comes up that's worth pursuing but doesn't belong in the current project's scope. Do NOT silently absorb it (scope drift) and do NOT trust yourself to "come back to it later" (you won't). The right move is to invoke `project-scaffolder` mid-session in spin-off mode — it captures the verbatim trigger as the new project's `raw_input` and records the current project as the parent. The spin-off lands in `projects/<new-slug>/` in status `backlog` and the original session resumes. This is the kit's primary mechanism for preventing lost ideas.
 
 ## How to tell the difference
 

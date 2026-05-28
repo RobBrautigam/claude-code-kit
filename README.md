@@ -1,8 +1,8 @@
 # claude-code-kit
 
-An opinionated discipline and workflow layer for Claude Code. 7 skills, 15 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
+An opinionated discipline and workflow layer for Claude Code. 8 skills, 15 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
 
-This is an opinionated discipline and workflow layer for Claude Code. You get 7 skills (`project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`), 15 rules covering communication, git, testing, parallel sessions, autopilot scope checks, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
+This is an opinionated discipline and workflow layer for Claude Code. You get 8 skills (`project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`), 15 rules covering communication, git, testing, parallel sessions, autopilot scope checks, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
 
 ---
 
@@ -67,9 +67,18 @@ If you want to start small, the highest-leverage starter set is five files: [`co
 
 ---
 
-## The skills (7)
+## The skills (8)
 
-Skills only fire when their trigger phrases appear in a conversation. You can install all 7 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
+Skills only fire when their trigger phrases appear in a conversation. You can install all 8 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
+
+### [`project-scaffolder`](./skills/project-scaffolder/)
+
+**Scaffolds a new project from minimal input: creates `projects/<slug>/` with a rich README (origin brief, definition of done, copy-paste starter prompt) plus empty `plan.md` and `report.md` stubs.**
+
+The README a one-liner produces is useless six months later — the rich-context README this skill produces is the artifact that lets a fresh Claude Code session pick up the project cold without needing the original conversation. It also includes a `starter_prompt` block that's literally copy-paste-ready for the next session. Spin-off mode (the most common variant) captures ideas that surface mid-project: you invoke the scaffolder with the parent project's slug, it records the lineage and the verbatim trigger, and you return to the original work without losing the tangent. The cost of scaffolding is 30 seconds; the cost of forgetting a good idea is whatever the idea was worth.
+
+- **When to use:** "start a new project", "create a project", "scaffold X", "add this as a project", any multi-step build request in a fresh conversation, OR mid-session when an unrelated idea surfaces that you want to capture without derailing the current work. The `session-types` rule routes ad-hoc builds here automatically.
+- **When not to use:** Skip for one-sentence bug fixes (branch + fix + ship is faster), for strategy conversations with no buildable output, and for renaming or editing an existing project.
 
 ### [`project-manager`](./skills/project-manager/)
 
@@ -184,7 +193,8 @@ claude-code-kit/
 ├── README.md                 ← you are here
 ├── INSTRUCTIONS.md           ← deep onboarding doc with the same install prompt + extra context
 ├── CLAUDE.md.example         ← template for your ~/.claude/CLAUDE.md
-├── skills/                   ← 7 skills, each in its own folder with SKILL.md
+├── skills/                   ← 8 skills, each in its own folder with SKILL.md
+│   ├── project-scaffolder/
 │   ├── project-manager/
 │   ├── ship/
 │   ├── session-handoff/

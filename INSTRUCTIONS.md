@@ -33,10 +33,11 @@ That's it. Claude Code will copy the files, show you what got installed, and tel
 
 ## What's in this package
 
-### Skills (7)
+### Skills (8)
 
 | Skill | What it does | When to use |
 |---|---|---|
+| `project-scaffolder` | Scaffolds a new project from minimal input: `projects/<slug>/` with rich README (origin brief, definition of done, copy-paste starter prompt) plus empty `plan.md` and `report.md` stubs. Supports spin-off mode for ideas that surface mid-project. | Any time you start a new project, OR mid-session when an unrelated idea comes up that you want to capture. Trigger: "start a new project", "scaffold X", "spin off Y". |
 | `project-manager` | Session guardrails. Runs the full Superpowers chain (brainstorm → plan → execute → verify → review → ship), creates feature branches + draft PRs at session start, enforces scope discipline. | Any project session. Trigger: "let's work on X", "next project", or just paste a starter prompt. |
 | `ship` | Session-close workflow. Version bump, progress log, patch / release report, commit, push, PR merge, deploy verification. | At the end of every session that produced meaningful changes. Trigger: `/ship`, "ship it", "wrap up". |
 | `session-handoff` | Structured end-of-session summary for `/clear` + fresh conversation. NOT a project close — this is for context continuity when the conversation is getting long. | When context is getting heavy and you want to start fresh without losing the thread. Trigger: "session handoff", "save context", "prep a handoff". |
@@ -45,7 +46,7 @@ That's it. Claude Code will copy the files, show you what got installed, and tel
 | `skill-creator` | Create new skills and iteratively improve existing ones. Includes the philosophy + structure of a good skill. | When you notice a workflow repeating 3+ times. Trigger: "create a skill", "turn this into a skill". |
 | `research` | Deep, context-aware research using the Perplexity API. Runs multi-angle queries, synthesizes through your business lens, saves a full report. | When you need real research, not just a websearch. Requires a Perplexity API key. Trigger: "research X", "look into Y", "dig into Z". |
 
-### Rules (13)
+### Rules (15)
 
 All rules auto-load in every conversation. They cover:
 

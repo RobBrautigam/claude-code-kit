@@ -14,7 +14,7 @@ This skill is filesystem + git driven by default. If your setup has a richer tas
 ## When to invoke
 
 - User says: "let's work on X", "next project", "continue X", "what's next", "start the X project", "I want to build Y", or pastes a starter prompt naming a project.
-- User pastes a multi-step build request that isn't a quick fix — scaffold the project before invoking this skill (use a `project-scaffolder` skill if you have one, or just create a folder + README manually).
+- User pastes a multi-step build request that isn't a quick fix — invoke the `project-scaffolder` skill first to create the project, then resume here.
 
 ## When NOT to invoke
 
@@ -30,7 +30,7 @@ This skill is filesystem + git driven by default. If your setup has a richer tas
 
 The project is either:
 - **Already scaffolded** — its files live at `projects/<slug>/README.md` (or your repo's equivalent path). Read the README first.
-- **Brand new** — the user just described what they want to build. Pause and scaffold it before continuing (one folder + one README is enough to start).
+- **Brand new** — the user just described what they want to build. Pause and invoke the `project-scaffolder` skill before continuing. It creates `projects/<slug>/README.md` with the full rich context (origin brief, definition of done, starter prompt) plus empty `plan.md` and `report.md` stubs. Once scaffolding completes, resume this skill from Step 2 with the freshly-scaffolded project.
 
 ### Step 2: Reconcile scope against canonical sources
 
@@ -166,8 +166,19 @@ Draft PRs give Slack / GitHub integration something to broadcast and create a vi
 
 **Unrelated work:**
 1. Quick fix (<30 min) and foundational → inline, it's an investment.
-2. Unrelated and non-trivial → spin off to backlog with your project-scaffolder, then refocus.
-3. **Never silently drift.**
+2. Unrelated and non-trivial → **spin off a new project via the `project-scaffolder` skill**, then refocus on the current one. The scaffolder captures the verbatim trigger from the mid-session conversation as the new project's `raw_input` and references the current project as the parent in the origin brief, so the lineage stays clear when the spin-off is picked up later.
+3. **Never silently drift.** If you notice a tangent worth pursuing, scaffold the spin-off now so it doesn't get forgotten, then return to the current scope.
+
+### Mid-session spin-offs (the common case)
+
+Ideas that surface mid-project are the most valuable thing to capture, and the easiest to lose. As soon as a tangent comes up that isn't going to ship inline:
+
+1. Pause the current work briefly.
+2. Invoke `project-scaffolder` with the spin-off as input. Tell the scaffolder the parent project's slug so the lineage gets recorded in the new project's `Session Context` block.
+3. The scaffolder creates `projects/<spin-off-slug>/` and writes the rich context. No tracker insert needed if you don't use one — the README is the record.
+4. Return to the original project. The spin-off is now in `projects/` waiting for the weekly review or daily pick.
+
+This pattern is how the kit prevents the "I'll remember to come back to this" failure mode. You almost never remember. Scaffolding takes 30 seconds and makes the idea concrete instead of a fading thought.
 
 ### Progress tracking
 
