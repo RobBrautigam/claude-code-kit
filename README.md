@@ -1,8 +1,8 @@
 # claude-code-kit
 
-An opinionated discipline and workflow layer for Claude Code. 8 skills, 15 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
+An opinionated discipline and workflow layer for Claude Code. 13 skills, 18 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
 
-This is an opinionated discipline and workflow layer for Claude Code. You get 8 skills (`project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`), 15 rules covering communication, git, testing, parallel sessions, autopilot scope checks, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
+This is an opinionated discipline and workflow layer for Claude Code. You get 13 skills (`project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`, `scaffold-repo`, plus four code-knowledge-graph skills: `explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`), 18 rules covering communication, git, testing, parallel sessions, autopilot scope checks, code-graph usage, foot-gun gating, session-close auditing, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
 
 ---
 
@@ -35,7 +35,7 @@ Use the Bash tool for file copies. On Windows use PowerShell syntax; on macOS / 
 
 That's it. The agent will copy the files into `~/.claude/`, show you what landed, and tell you which placeholders to edit. Restart Claude Code and the rules auto-load into every conversation.
 
-For the deep onboarding doc with more context, see [INSTRUCTIONS.md](./INSTRUCTIONS.md).
+For the deep onboarding doc with more context, see [INSTRUCTIONS.md](./INSTRUCTIONS.md). For how the layers fit together, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ---
 
@@ -67,9 +67,9 @@ If you want to start small, the highest-leverage starter set is five files: [`co
 
 ---
 
-## The skills (8)
+## The skills (13)
 
-Skills only fire when their trigger phrases appear in a conversation. You can install all 8 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
+Skills only fire when their trigger phrases appear in a conversation. You can install all 13 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
 
 ### [`project-scaffolder`](./skills/project-scaffolder/)
 
@@ -143,11 +143,56 @@ Default Claude research tends to produce generic LLM slop: "best practices for S
 - **When to use:** Triggers on "research X", "look into", "dig into", "investigate", "what do you know about", "find out about", or evaluating tools, pricing, competitors, or market landscape. Especially valuable on vague prompts, because the clarification + context-loading steps narrow scope before any API call burns tokens.
 - **When not to use:** Skip for factual lookups Claude already knows (syntax, well-known APIs, library docs) and skip if you don't have a Perplexity API key and don't want one. Overkill for "what does this error mean".
 
+### [`scaffold-repo`](./skills/scaffold-repo/)
+
+**Two-mode skill: scaffold a brand-new repo from an empty directory, or backfill an existing repo up to your global standards.**
+
+The value is twofold. For new repos, it bundles the decisions you'd otherwise make ad hoc every time: Tailwind v4 CSS-first setup (with the specific gotchas that bite people migrating from v3), path aliases, a project `CLAUDE.md` from a template, `.gitignore` coverage, and a pre-commit hook installed in the right place for the repo's language. For existing repos, it audits what's missing against a checklist and backfills only with permission, never touching your code. The headline detail is the husky-vs-`.git/hooks` pre-commit placement: installing husky flips `core.hooksPath` to `.husky/`, which silently kills any guard living in `.git/hooks/pre-commit`. The bundled `husky-backfill-checklist.md` walks the safe procedure so a backfill never orphans an existing identity or branch guard.
+
+- **When to use:** "scaffold repo", "scaffold project", "set up this repo", "backfill this project", "bring this repo up to standard". The natural moments are a fresh empty directory you just opened, or an old repo that predates your current conventions.
+- **When not to use:** Skip if the repo is already on-standard, or if you want a framework's own scaffolder (`create-next-app`, etc.) to run untouched without the extra config layer.
+
+### [`explore-codebase`](./skills/explore-codebase/)
+
+**Navigate a large codebase structurally — architecture, modules, callers, callees, execution flows — using the `code-review-graph` MCP knowledge graph instead of grepping blind.**
+
+On a repo over ~100 files, "what's the architecture / what calls into this subsystem / trace the request flow" takes a dozen greps and still leaves you guessing. The graph answers those structurally and far more cheaply. The skill's discipline is its freshness precondition: a stale graph gives confident wrong answers (the classic "0 callers" against a graph built before a refactor), so it forces an `update` + `detect-changes` before trusting any structural answer, and keeps the graph strictly advisory before any destructive action.
+
+- **When to use:** Repos over ~100 files where a structural question would take 3+ greps. "What are the major modules", "what connects to Y", "where does the request flow go".
+- **When not to use:** Repos under ~100 files (plain Grep is faster), single-symbol lookups, or a question you can answer by reading one file. Requires the [`code-review-graph`](https://pypi.org/project/code-review-graph/) MCP server.
+
+### [`debug-issue`](./skills/debug-issue/)
+
+**Trace a bug through call chains and execution flows with the `code-review-graph` graph, including recent-change detection to catch the change that introduced it.**
+
+When a bug spans modules and you don't know the entry point, the graph traces the call chain and flags whether a recent change touched the suspect (recent changes are the most common cause of new bugs). It pairs with `superpowers:systematic-debugging` — the graph points you at suspects, then you confirm the root cause by reading the code and reproducing before writing a failing test.
+
+- **When to use:** Multi-module bugs on a large repo where you don't yet know the entry point or suspect a recent change rippled into a distant failure.
+- **When not to use:** Small repos, or a bug already localized to one file. The graph points at suspects; it never proves causation on its own.
+
+### [`refactor-safely`](./skills/refactor-safely/)
+
+**See the full blast radius of a refactor — every rename site, every dependent, every affected flow — BEFORE touching code, using the graph's rename preview, dead-code detection, and impact radius.**
+
+Cross-file renames, moving a symbol between modules, and "is this code actually dead" are exactly where confident-but-wrong gets expensive. The skill previews every affected location before applying a rename and treats dead-code detection as a strong hint, never proof — because the graph can miss dynamic dispatch, reflection, and string-based imports. Run the tests after, confirm green before committing.
+
+- **When to use:** Cross-file renames, moves, decomposition of a function with many callers, or deleting code you believe is unused — on a repo big enough that finding every call site by hand is unreliable.
+- **When not to use:** Single-file refactors (just edit and run the tests). NEVER delete graph-flagged "dead" code without a confirming read + a test run.
+
+### [`review-changes`](./skills/review-changes/)
+
+**Review a changeset by its blast radius and test coverage — not just the diff lines — using the graph's change detection, impact radius, affected flows, and `tests_for` queries.**
+
+A diff that touches a shared utility looks small but can ripple through dozens of dependents the diff view never shows. This skill scores the change by what it actually affects and which high-risk functions lack test coverage, then focuses a human or AI review on the high-blast-radius areas. It composes with `superpowers:requesting-code-review` and a deeper adversarial pass for risk surfaces (data mutations, auth, migrations, schedulers).
+
+- **When to use:** Reviewing a branch/PR diff that touches shared utilities or core modules on a large repo, where "what else does this affect" isn't obvious from the diff.
+- **When not to use:** Small self-contained diffs (read them directly). The graph scores risk; it does not catch logic bugs, security flaws, or business-rule violations — pair it with an actual review.
+
 ---
 
-## The rules (15)
+## The rules (18)
 
-Rules auto-load into every Claude Code conversation that uses your global config. They shape every response, every commit, every decision, without you having to remember them.
+Rules auto-load into every Claude Code conversation that uses your global config. They shape every response, every commit, every decision, without you having to remember them. (All 18 auto-load.)
 
 ### Communication and decision-making
 
@@ -165,6 +210,7 @@ Rules auto-load into every Claude Code conversation that uses your global config
 | [git-conventions](./rules/git-conventions.md) | Lowercase commits under 72 chars, push immediately after commit, feature branches and draft PRs by default, no force-push to main. | Catches the unpushed-commits trap (work sits local for hours because "deploy succeeded" creates false confidence it's pushed), the silent direct-to-main pattern that hides activity from collaborators, and the local `user.email` override that misroutes commits to a different GitHub account. Branch-by-default is one decision made once instead of one decision made wrong sometimes. |
 | [concurrent-sessions](./rules/concurrent-sessions.md) | Two Claude conversations on the same repo MUST run in separate git worktrees; same checkout is forbidden. | Prevents the cross-session corruption disaster: conversation A runs `git stash` or `git checkout` and atomically rewrites the working tree out from under conversation B mid-commit, producing unmerged-paths walls, lost untracked files, and broken ship workflows. Also covers the secondary leaks (12 GB Next dev servers, accumulated VS Code windows, orphaned MCP servers) that compound over multi-day sessions. |
 | [session-handoffs-required](./rules/session-handoffs-required.md) | Ending a session with work remaining requires starter prompt first (inline code block), then ship, then handoff summary; the prompt commits to one path with no embedded decisions. | Closes four documented handoff failure modes: handing off mid-task while review is still owed, embedding "PATH A vs PATH B" menus in the prompt body so the next session opens with another question, delivering the prompt as a file path the user has to chase, and omitting the parallel-session check so the new conversation steps on the old one's working tree. The handoff is the artifact that makes the next session productive instead of re-litigating decisions. |
+| [session-loose-ends-audit](./rules/session-loose-ends-audit.md) | Before any session close, account for every idea/request/aside raised during the session, each tagged with an honest disposition (implemented / partial / queued / spun-off / surfaced / reframed / dropped). | Prevents the recurring failure where an idea raised in passing evaporates at session close and the user has to be the system's memory, re-raising it days later. The "tracking is binary" honesty requirement stops "captured" from meaning "mentioned once in a prompt", and leading with the hardest misses stops the most-divergent items from getting buried. |
 | [starter-prompt-code-block-integrity](./rules/starter-prompt-code-block-integrity.md) | Wrap starter prompts in 4-backtick fences so inner triple-backtick code samples don't break the outer block. | Prevents the rendering bug where a starter prompt containing an inner ```` ```python ```` block causes the outer triple-backtick fence to close early, splitting the prompt into 2-3 visible code blocks with prose seams. The user then can't copy-paste it cleanly and has to ask for a redelivery. Defaulting to 4-tick fences costs nothing when there's no inner fence and eliminates the failure class entirely. |
 
 ### Code, testing, and dev workflow
@@ -175,6 +221,8 @@ Rules auto-load into every Claude Code conversation that uses your global config
 | [development-workflow](./rules/development-workflow.md) | Localhost-first, shadcn/ui default, no auto-starting backend pollers that hit production. | Stops two specific failure modes: shipping unverified code to production because "I'll just deploy and check", and orphaned Python pollers that survive VS Code restarts and quietly hammer a production database. Auto-starting a Telegram bot or scheduled job from a Claude session has caused real database load spikes; the rule names which processes are safe to auto-start and which require explicit approval. |
 | [tdd-loop-discipline](./rules/tdd-loop-discipline.md) | During iteration run only the affected test file; reserve the full suite for the preflight gate. | Stops the 3-hour, ~97% CPU pegging pattern where every save triggers a 621-test vitest run (14-16 workers, ~5,500% of one core, 20-90 seconds per cycle). Sub-second targeted runs give the same correctness signal during the actual TDD loop. The full suite stays mandatory at the commit boundary, not on every save. |
 | [use-gha-not-local-ci](./rules/use-gha-not-local-ci.md) | When CI is configured, push and check `gh pr checks`; full local `vitest`, `tsc`, and production builds are forbidden. | Prevents subagents from running 30+ minutes of local CPU-pegging verification (full `vitest` + `next build` + `tsc` per task) when GitHub Actions does the same job in parallel on remote hardware in 4-5 minutes. Also catches build-time regressions that scoped local typechecks miss. Local full-suite runs are the slower path almost every time once CI exists. |
+| [code-review-graph-usage](./rules/code-review-graph-usage.md) | When (and when NOT) to use the `code-review-graph` MCP knowledge graph; the freshness law and the advisory trust boundary. | The graph is enormous leverage on big repos and pure overhead on small ones, so the rule draws the ~100-file line explicitly. Its load-bearing clause is the freshness law: a stale graph gives confident wrong answers ("0 callers" after a refactor) that get live code deleted, so an `update` + `detect-changes` is mandatory before trusting any structural answer. Drives the four code-graph skills. |
+| [sharp-edges-convention](./rules/sharp-edges-convention.md) | The top 3-5 prod-breaking foot-guns of a repo get an inline `## Sharp Edges` section in its `CLAUDE.md` AND, where checkable, a CI grep/lint gate that fails the build. | Documentation alone doesn't change behavior — context-loaded prose is read the same wherever it lives. The mechanical gate is the actual enforcement (a CI grep that fails on the forbidden pattern), and the prose is the companion that explains why. The rule forces the "can this be a gate?" question on every foot-gun and keeps the inline section short enough to keep its signal. |
 
 ### Session shape and safety
 
@@ -192,8 +240,9 @@ Rules auto-load into every Claude Code conversation that uses your global config
 claude-code-kit/
 ├── README.md                 ← you are here
 ├── INSTRUCTIONS.md           ← deep onboarding doc with the same install prompt + extra context
+├── ARCHITECTURE.md           ← how the layers (rules / skills / Superpowers / MCP) compose
 ├── CLAUDE.md.example         ← template for your ~/.claude/CLAUDE.md
-├── skills/                   ← 8 skills, each in its own folder with SKILL.md
+├── skills/                   ← 13 skills, each in its own folder with SKILL.md
 │   ├── project-scaffolder/
 │   ├── project-manager/
 │   ├── ship/
@@ -201,9 +250,15 @@ claude-code-kit/
 │   ├── daily-review/
 │   ├── weekly-review/
 │   ├── skill-creator/
-│   └── research/
-│       └── scripts/perplexity_research.py
-└── rules/                    ← 15 rules, auto-load into every conversation
+│   ├── research/
+│   │   └── scripts/perplexity_research.py
+│   ├── scaffold-repo/
+│   │   └── husky-backfill-checklist.md
+│   ├── explore-codebase/      ┐
+│   ├── debug-issue/           │ code-review-graph MCP skills
+│   ├── refactor-safely/       │
+│   └── review-changes/        ┘
+└── rules/                    ← 18 rules, auto-load into every conversation
     ├── communication-style.md
     ├── brainstorming-question-filter.md
     ├── pushback-on-request.md
@@ -211,11 +266,14 @@ claude-code-kit/
     ├── git-conventions.md
     ├── concurrent-sessions.md
     ├── session-handoffs-required.md
+    ├── session-loose-ends-audit.md
     ├── starter-prompt-code-block-integrity.md
     ├── coding-conventions.md
     ├── development-workflow.md
     ├── tdd-loop-discipline.md
     ├── use-gha-not-local-ci.md
+    ├── code-review-graph-usage.md
+    ├── sharp-edges-convention.md
     ├── session-types.md
     ├── autopilot-and-scope-checks.md
     └── no-bash-heredocs.md
@@ -232,6 +290,8 @@ Optional:
 
 - **[Perplexity API key](https://www.perplexity.ai/settings/api)** — required only for the `research` skill. Add to `~/.claude/.secrets.env` as `PERPLEXITY_API_KEY=...` or export it.
 - **[GitHub CLI](https://cli.github.com/)** — used by `ship` and `project-manager` for PR creation, status checks, and merges. `gh auth login` once.
+- **[`code-review-graph`](https://pypi.org/project/code-review-graph/)** — the MCP knowledge-graph server behind the four code-graph skills (`explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`). Runs via `uvx code-review-graph serve`; register it at user scope in `~/.claude.json` so it's available in every repo. Without it those four skills have nothing to drive; the rest of the kit is unaffected.
+- **Codex plugin** (optional) — `review-changes` and `scaffold-repo` reference `/codex:review` / `/codex:adversarial-review` for an independent adversarial review pass. If you don't use Codex, treat those as "run a deeper review" prompts — nothing breaks.
 
 ---
 

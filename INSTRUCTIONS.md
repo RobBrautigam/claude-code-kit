@@ -33,7 +33,7 @@ That's it. Claude Code will copy the files, show you what got installed, and tel
 
 ## What's in this package
 
-### Skills (8)
+### Skills (13)
 
 | Skill | What it does | When to use |
 |---|---|---|
@@ -45,8 +45,13 @@ That's it. Claude Code will copy the files, show you what got installed, and tel
 | `weekly-review` | 15-25 minute weekly planning. Curates the todo queue, assigns target dates, audits stuck-in-progress items. | Once a week, ideally Sunday evening or Monday morning. Trigger: `/weekly-review`, "plan my week". |
 | `skill-creator` | Create new skills and iteratively improve existing ones. Includes the philosophy + structure of a good skill. | When you notice a workflow repeating 3+ times. Trigger: "create a skill", "turn this into a skill". |
 | `research` | Deep, context-aware research using the Perplexity API. Runs multi-angle queries, synthesizes through your business lens, saves a full report. | When you need real research, not just a websearch. Requires a Perplexity API key. Trigger: "research X", "look into Y", "dig into Z". |
+| `scaffold-repo` | Two-mode: scaffold a brand-new repo (Tailwind v4 CSS-first, path aliases, project `CLAUDE.md`, pre-commit hook placed correctly by language) or backfill an existing repo to standard. Bundles a husky-backfill checklist that prevents `core.hooksPath` from orphaning an existing guard. | Setting up a fresh empty directory, or bringing an old repo up to your conventions. Trigger: "scaffold repo", "set up this repo", "backfill this project". |
+| `explore-codebase` | Navigate a large codebase structurally (architecture, modules, callers/callees, flows) via the `code-review-graph` MCP graph, with a mandatory freshness check. | Repos over ~100 files where a structural question would take 3+ greps. Requires the `code-review-graph` MCP server. |
+| `debug-issue` | Trace a bug through call chains + execution flows and detect whether a recent change caused it. Pairs with `superpowers:systematic-debugging`. | Multi-module bugs on a large repo where you don't know the entry point. Requires `code-review-graph`. |
+| `refactor-safely` | Preview a refactor's full blast radius (rename sites, dependents, dead code, affected flows) before touching code. | Cross-file renames/moves/decomposition on a large repo. Requires `code-review-graph`. Never delete graph-flagged "dead" code without a confirming read + tests. |
+| `review-changes` | Risk-aware review of a changeset by blast radius and test coverage, not just diff lines. Composes with `superpowers:requesting-code-review`. | Reviewing a branch/PR diff that touches shared code on a large repo. Requires `code-review-graph`. |
 
-### Rules (15)
+### Rules (18)
 
 All rules auto-load in every conversation. They cover:
 
@@ -63,10 +68,13 @@ All rules auto-load in every conversation. They cover:
 | `pushback-on-request.md` | Genuine challenge when asked, not validation in disguise |
 | `tdd-loop-discipline.md` | Single-file tests during iteration, full suite at preflight only |
 | `use-gha-not-local-ci.md` | Push to CI, don't burn local CPU on full builds |
+| `code-review-graph-usage.md` | When (and when NOT) to use the code-review-graph MCP; the freshness law; advisory trust boundary |
+| `sharp-edges-convention.md` | Top prod-breaking foot-guns get an inline CLAUDE.md section + a mechanical CI/lint gate |
 | `no-bash-heredocs.md` | Never heredocs through the Bash tool — use the Write tool instead |
 | `autopilot-and-scope-checks.md` | Scope anomalies pause autopilot, even when "full autopilot" was authorized |
 | `starter-prompt-code-block-integrity.md` | Use 4-backtick fences for any prompt containing inner code blocks |
 | `session-handoffs-required.md` | Always deliver starter prompt + ship + summary when ending a session |
+| `session-loose-ends-audit.md` | At session close, account for every idea/aside raised, each with an honest disposition tag |
 
 ### CLAUDE.md.example
 
@@ -130,6 +138,23 @@ Used by the `ship` and `project-manager` skills for PR creation, status checks, 
 # Install: https://cli.github.com/
 gh auth login
 ```
+
+### code-review-graph MCP (only for the four code-graph skills)
+
+`explore-codebase`, `debug-issue`, `refactor-safely`, and `review-changes` all drive the [`code-review-graph`](https://pypi.org/project/code-review-graph/) MCP server. Register it once at user scope (in `~/.claude.json`) so it's available in every repo:
+
+```json
+"code-review-graph": {
+  "command": "uvx",
+  "args": ["code-review-graph", "serve"]
+}
+```
+
+It's lazy — the process idles until you build a graph (`uvx code-review-graph build` from a repo root) and call a tool. Without it, those four skills have nothing to drive; the rest of the kit is unaffected.
+
+### Codex plugin (optional)
+
+`review-changes` and `scaffold-repo` reference `/codex:review` / `/codex:adversarial-review` for an independent adversarial review pass. If you don't use Codex, read those as "run a deeper review here" prompts — nothing breaks without it.
 
 ---
 
