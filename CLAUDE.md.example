@@ -63,10 +63,13 @@ Detailed standards auto-load from `~/.claude/rules/`:
 - `pushback-on-request.md` — Genuine challenge when asked, not validation
 - `tdd-loop-discipline.md` — Single-file tests during iteration, full suite at preflight
 - `use-gha-not-local-ci.md` — Push and use GitHub Actions, not local full builds
+- `code-review-graph-usage.md` — When (and when not) to use the code-review-graph MCP; the freshness law
+- `sharp-edges-convention.md` — Top prod-breaking foot-guns get an inline CLAUDE.md section + a CI/lint gate
 - `no-bash-heredocs.md` — Never heredocs through the Bash tool; use Write tool
 - `autopilot-and-scope-checks.md` — Scope anomalies pause autopilot
 - `starter-prompt-code-block-integrity.md` — One intact code block, every time
 - `session-handoffs-required.md` — Always deliver prompt + ship + summary
+- `session-loose-ends-audit.md` — At session close, account for every idea/aside with an honest disposition
 
 ## Tech Stack
 
