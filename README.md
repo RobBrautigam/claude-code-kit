@@ -1,4 +1,4 @@
-# claude-code-kit
+# Claude Code Starter Kit
 
 An opinionated discipline and workflow layer for Claude Code. 13 skills, 18 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
 
@@ -9,8 +9,8 @@ This is an opinionated discipline and workflow layer for Claude Code. You get 13
 ## Install (the 30-second version)
 
 ```bash
-git clone https://github.com/RobBrautigam/claude-code-kit.git
-cd claude-code-kit
+git clone https://github.com/RobBrautigam/claude-code-starter-kit.git
+cd claude-code-starter-kit
 ```
 
 Then paste this prompt into a fresh Claude Code (or Codex, or any agentic CLI) conversation **inside the cloned directory**:
@@ -237,7 +237,7 @@ Rules auto-load into every Claude Code conversation that uses your global config
 ## Repo layout
 
 ```
-claude-code-kit/
+claude-code-starter-kit/
 ├── README.md                 ← you are here
 ├── INSTRUCTIONS.md           ← deep onboarding doc with the same install prompt + extra context
 ├── ARCHITECTURE.md           ← how the layers (rules / skills / Superpowers / MCP) compose

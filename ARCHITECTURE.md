@@ -53,7 +53,7 @@ Three things make this work as a system rather than a pile of files:
 ## Dependency graph
 
 ```
-claude-code-kit
+claude-code-starter-kit
 ├── requires:  Claude Code (or any agentic CLI honoring markdown skills/rules)
 ├── requires:  Superpowers (Obra)            ← the workflow engine the skills call
 ├── optional:  Perplexity API key            ← only the `research` skill
