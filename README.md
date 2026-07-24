@@ -1,8 +1,8 @@
 # Claude Code Starter Kit
 
-An opinionated discipline and workflow layer for Claude Code. 13 skills, 18 rules, a global `CLAUDE.md` template, and a copy-paste install prompt.
+An opinionated discipline and workflow layer for Claude Code. 14 skills, 18 rules, a global `CLAUDE.md` template, a per-repo `CLAUDE.md` template, a whole-computer organization system (the setup doctor), and a copy-paste install prompt.
 
-This is an opinionated discipline and workflow layer for Claude Code. You get 13 skills (`project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`, `scaffold-repo`, plus four code-knowledge-graph skills: `explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`), 18 rules covering communication, git, testing, parallel sessions, autopilot scope checks, code-graph usage, foot-gun gating, session-close auditing, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
+This is an opinionated discipline and workflow layer for Claude Code. You get 14 skills (`setup-doctor`, `project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`, `scaffold-repo`, plus four code-knowledge-graph skills: `explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`), 18 rules covering communication, git, testing, parallel sessions, autopilot scope checks, code-graph usage, foot-gun gating, session-close auditing, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
 
 ---
 
@@ -18,15 +18,15 @@ Then paste this prompt into a fresh Claude Code (or Codex, or any agentic CLI) c
 ````
 I have a folder of Claude Code skills and rules I want to install. The folder structure is:
 
-  skills/        — each subfolder is a skill (SKILL.md inside)
-  rules/         — each file is a discipline / workflow rule
-  CLAUDE.md.example — example global config
+  skills/ - each subfolder is a skill (SKILL.md inside)
+  rules/ - each file is a discipline / workflow rule
+  CLAUDE.md.example - example global config
 
 Please install them at the global Claude Code level (~/.claude/) so they apply to every repo. Specifically:
 
 1. Copy every subdirectory under skills/ to ~/.claude/skills/ (preserving the SKILL.md and any bundled files like scripts/).
 2. Copy every file under rules/ to ~/.claude/rules/.
-3. Show me my current ~/.claude/CLAUDE.md (if it exists). If it doesn't exist, copy CLAUDE.md.example to ~/.claude/CLAUDE.md and tell me to edit the placeholders. If it exists, do NOT overwrite — show me the diff against CLAUDE.md.example and ask whether I want to merge, replace, or leave it alone.
+3. Show me my current ~/.claude/CLAUDE.md (if it exists). If it doesn't exist, copy CLAUDE.md.example to ~/.claude/CLAUDE.md and tell me to edit the placeholders. If it exists, do NOT overwrite - show me the diff against CLAUDE.md.example and ask whether I want to merge, replace, or leave it alone.
 4. Verify the install: list ~/.claude/skills/ and ~/.claude/rules/ so I can see what landed.
 5. Tell me to restart Claude Code (or start a fresh conversation) so the new skills auto-register.
 
@@ -36,6 +36,18 @@ Use the Bash tool for file copies. On Windows use PowerShell syntax; on macOS / 
 That's it. The agent will copy the files into `~/.claude/`, show you what landed, and tell you which placeholders to edit. Restart Claude Code and the rules auto-load into every conversation.
 
 For the deep onboarding doc with more context, see [INSTRUCTIONS.md](./INSTRUCTIONS.md). For how the layers fit together, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+---
+
+## Start here if your computer is a mess
+
+If your repos are scattered - some on the Desktop, some in Documents, some wherever your editor cloned them, half of them quietly syncing to iCloud or OneDrive - fix THAT first. This kit ships a whole-computer organization system:
+
+- **[ORGANIZE-YOUR-COMPUTER.md](./ORGANIZE-YOUR-COMPUTER.md)** - a zero-install copy-paste prompt that inventories every git repo on your machine (Windows or Mac), plans a migration into one flat dev root (`C:\dev\` / `~/dev`), moves repos only after your approval with git-safety checks, then equips every repo with a `CLAUDE.md` + `.claude/` folder.
+- **[`setup-doctor`](./skills/setup-doctor/)** - the same system as an installed skill: `/setup-doctor` any time a machine drifts back toward chaos.
+- **[templates/repo-CLAUDE.md](./templates/repo-CLAUDE.md)** - the per-repo `CLAUDE.md` template (what the project is, the commands, the sharp edges) every repo should carry.
+
+Once everything lives in one flat root, the natural next step is running multiple Claude Code windows in parallel with git worktrees + an orchestrator conversation - that method lives in its own repo: **[claude-code-orchestrator](https://github.com/RobBrautigam/claude-code-orchestrator)**. The two repos are designed as a pair: this kit sets up the machine and the discipline layer; the orchestrator repo scales you to many parallel sessions.
 
 ---
 
@@ -67,15 +79,23 @@ If you want to start small, the highest-leverage starter set is five files: [`co
 
 ---
 
-## The skills (13)
+## The skills (14)
 
-Skills only fire when their trigger phrases appear in a conversation. You can install all 13 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
+Skills only fire when their trigger phrases appear in a conversation. You can install all 14 with zero overhead; the ones you don't trigger stay dormant. Each skill has its own folder with a `SKILL.md`, and some bundle scripts or references.
+
+### [`setup-doctor`](./skills/setup-doctor/)
+
+**Diagnoses and fixes a messy Claude Code setup across the entire computer - Windows or Mac: finds every scattered git repo, migrates them into one flat dev root (only after you approve the plan), and equips each with a `CLAUDE.md` + `.claude/` folder.**
+
+Months of real use accrete repos on the Desktop, in Documents, and wherever an editor happened to clone them - often silently syncing to iCloud/OneDrive, which is the single most common silent corruptor of a dev machine. The doctor runs five phases: global snapshot, read-only inventory (one table, every repo, flagged), migration plan (STOPS for approval; archives duplicates instead of deleting), git-safe moves (clean + pushed verified before, status + fetch + worktree-repair verified after), then the equip pass (a drafted `CLAUDE.md` per repo from actually reading it, `.claude/rules/`, gitignore hygiene). The zero-install prompt version lives in [ORGANIZE-YOUR-COMPUTER.md](./ORGANIZE-YOUR-COMPUTER.md).
+
+- **When to use:** "organize my repos", "my folders are a mess", "set up my computer for Claude Code", first install on a machine with history, or any time scatter creeps back.
 
 ### [`project-scaffolder`](./skills/project-scaffolder/)
 
 **Scaffolds a new project from minimal input: creates `projects/<slug>/` with a rich README (origin brief, definition of done, copy-paste starter prompt) plus empty `plan.md` and `report.md` stubs.**
 
-The README a one-liner produces is useless six months later — the rich-context README this skill produces is the artifact that lets a fresh Claude Code session pick up the project cold without needing the original conversation. It also includes a `starter_prompt` block that's literally copy-paste-ready for the next session. Spin-off mode (the most common variant) captures ideas that surface mid-project: you invoke the scaffolder with the parent project's slug, it records the lineage and the verbatim trigger, and you return to the original work without losing the tangent. The cost of scaffolding is 30 seconds; the cost of forgetting a good idea is whatever the idea was worth.
+The README a one-liner produces is useless six months later - the rich-context README this skill produces is the artifact that lets a fresh Claude Code session pick up the project cold without needing the original conversation. It also includes a `starter_prompt` block that's literally copy-paste-ready for the next session. Spin-off mode (the most common variant) captures ideas that surface mid-project: you invoke the scaffolder with the parent project's slug, it records the lineage and the verbatim trigger, and you return to the original work without losing the tangent. The cost of scaffolding is 30 seconds; the cost of forgetting a good idea is whatever the idea was worth.
 
 - **When to use:** "start a new project", "create a project", "scaffold X", "add this as a project", any multi-step build request in a fresh conversation, OR mid-session when an unrelated idea surfaces that you want to capture without derailing the current work. The `session-types` rule routes ad-hoc builds here automatically.
 - **When not to use:** Skip for one-sentence bug fixes (branch + fix + ship is faster), for strategy conversations with no buildable output, and for renaming or editing an existing project.
@@ -154,7 +174,7 @@ The value is twofold. For new repos, it bundles the decisions you'd otherwise ma
 
 ### [`explore-codebase`](./skills/explore-codebase/)
 
-**Navigate a large codebase structurally — architecture, modules, callers, callees, execution flows — using the `code-review-graph` MCP knowledge graph instead of grepping blind.**
+**Navigate a large codebase structurally - architecture, modules, callers, callees, execution flows - using the `code-review-graph` MCP knowledge graph instead of grepping blind.**
 
 On a repo over ~100 files, "what's the architecture / what calls into this subsystem / trace the request flow" takes a dozen greps and still leaves you guessing. The graph answers those structurally and far more cheaply. The skill's discipline is its freshness precondition: a stale graph gives confident wrong answers (the classic "0 callers" against a graph built before a refactor), so it forces an `update` + `detect-changes` before trusting any structural answer, and keeps the graph strictly advisory before any destructive action.
 
@@ -165,28 +185,28 @@ On a repo over ~100 files, "what's the architecture / what calls into this subsy
 
 **Trace a bug through call chains and execution flows with the `code-review-graph` graph, including recent-change detection to catch the change that introduced it.**
 
-When a bug spans modules and you don't know the entry point, the graph traces the call chain and flags whether a recent change touched the suspect (recent changes are the most common cause of new bugs). It pairs with `superpowers:systematic-debugging` — the graph points you at suspects, then you confirm the root cause by reading the code and reproducing before writing a failing test.
+When a bug spans modules and you don't know the entry point, the graph traces the call chain and flags whether a recent change touched the suspect (recent changes are the most common cause of new bugs). It pairs with `superpowers:systematic-debugging` - the graph points you at suspects, then you confirm the root cause by reading the code and reproducing before writing a failing test.
 
 - **When to use:** Multi-module bugs on a large repo where you don't yet know the entry point or suspect a recent change rippled into a distant failure.
 - **When not to use:** Small repos, or a bug already localized to one file. The graph points at suspects; it never proves causation on its own.
 
 ### [`refactor-safely`](./skills/refactor-safely/)
 
-**See the full blast radius of a refactor — every rename site, every dependent, every affected flow — BEFORE touching code, using the graph's rename preview, dead-code detection, and impact radius.**
+**See the full blast radius of a refactor - every rename site, every dependent, every affected flow - BEFORE touching code, using the graph's rename preview, dead-code detection, and impact radius.**
 
-Cross-file renames, moving a symbol between modules, and "is this code actually dead" are exactly where confident-but-wrong gets expensive. The skill previews every affected location before applying a rename and treats dead-code detection as a strong hint, never proof — because the graph can miss dynamic dispatch, reflection, and string-based imports. Run the tests after, confirm green before committing.
+Cross-file renames, moving a symbol between modules, and "is this code actually dead" are exactly where confident-but-wrong gets expensive. The skill previews every affected location before applying a rename and treats dead-code detection as a strong hint, never proof - because the graph can miss dynamic dispatch, reflection, and string-based imports. Run the tests after, confirm green before committing.
 
-- **When to use:** Cross-file renames, moves, decomposition of a function with many callers, or deleting code you believe is unused — on a repo big enough that finding every call site by hand is unreliable.
+- **When to use:** Cross-file renames, moves, decomposition of a function with many callers, or deleting code you believe is unused - on a repo big enough that finding every call site by hand is unreliable.
 - **When not to use:** Single-file refactors (just edit and run the tests). NEVER delete graph-flagged "dead" code without a confirming read + a test run.
 
 ### [`review-changes`](./skills/review-changes/)
 
-**Review a changeset by its blast radius and test coverage — not just the diff lines — using the graph's change detection, impact radius, affected flows, and `tests_for` queries.**
+**Review a changeset by its blast radius and test coverage - not just the diff lines - using the graph's change detection, impact radius, affected flows, and `tests_for` queries.**
 
 A diff that touches a shared utility looks small but can ripple through dozens of dependents the diff view never shows. This skill scores the change by what it actually affects and which high-risk functions lack test coverage, then focuses a human or AI review on the high-blast-radius areas. It composes with `superpowers:requesting-code-review` and a deeper adversarial pass for risk surfaces (data mutations, auth, migrations, schedulers).
 
 - **When to use:** Reviewing a branch/PR diff that touches shared utilities or core modules on a large repo, where "what else does this affect" isn't obvious from the diff.
-- **When not to use:** Small self-contained diffs (read them directly). The graph scores risk; it does not catch logic bugs, security flaws, or business-rule violations — pair it with an actual review.
+- **When not to use:** Small self-contained diffs (read them directly). The graph scores risk; it does not catch logic bugs, security flaws, or business-rule violations - pair it with an actual review.
 
 ---
 
@@ -222,7 +242,7 @@ Rules auto-load into every Claude Code conversation that uses your global config
 | [tdd-loop-discipline](./rules/tdd-loop-discipline.md) | During iteration run only the affected test file; reserve the full suite for the preflight gate. | Stops the 3-hour, ~97% CPU pegging pattern where every save triggers a 621-test vitest run (14-16 workers, ~5,500% of one core, 20-90 seconds per cycle). Sub-second targeted runs give the same correctness signal during the actual TDD loop. The full suite stays mandatory at the commit boundary, not on every save. |
 | [use-gha-not-local-ci](./rules/use-gha-not-local-ci.md) | When CI is configured, push and check `gh pr checks`; full local `vitest`, `tsc`, and production builds are forbidden. | Prevents subagents from running 30+ minutes of local CPU-pegging verification (full `vitest` + `next build` + `tsc` per task) when GitHub Actions does the same job in parallel on remote hardware in 4-5 minutes. Also catches build-time regressions that scoped local typechecks miss. Local full-suite runs are the slower path almost every time once CI exists. |
 | [code-review-graph-usage](./rules/code-review-graph-usage.md) | When (and when NOT) to use the `code-review-graph` MCP knowledge graph; the freshness law and the advisory trust boundary. | The graph is enormous leverage on big repos and pure overhead on small ones, so the rule draws the ~100-file line explicitly. Its load-bearing clause is the freshness law: a stale graph gives confident wrong answers ("0 callers" after a refactor) that get live code deleted, so an `update` + `detect-changes` is mandatory before trusting any structural answer. Drives the four code-graph skills. |
-| [sharp-edges-convention](./rules/sharp-edges-convention.md) | The top 3-5 prod-breaking foot-guns of a repo get an inline `## Sharp Edges` section in its `CLAUDE.md` AND, where checkable, a CI grep/lint gate that fails the build. | Documentation alone doesn't change behavior — context-loaded prose is read the same wherever it lives. The mechanical gate is the actual enforcement (a CI grep that fails on the forbidden pattern), and the prose is the companion that explains why. The rule forces the "can this be a gate?" question on every foot-gun and keeps the inline section short enough to keep its signal. |
+| [sharp-edges-convention](./rules/sharp-edges-convention.md) | The top 3-5 prod-breaking foot-guns of a repo get an inline `## Sharp Edges` section in its `CLAUDE.md` AND, where checkable, a CI grep/lint gate that fails the build. | Documentation alone doesn't change behavior - context-loaded prose is read the same wherever it lives. The mechanical gate is the actual enforcement (a CI grep that fails on the forbidden pattern), and the prose is the companion that explains why. The rule forces the "can this be a gate?" question on every foot-gun and keeps the inline section short enough to keep its signal. |
 
 ### Session shape and safety
 
@@ -242,7 +262,11 @@ claude-code-starter-kit/
 ├── INSTRUCTIONS.md           ← deep onboarding doc with the same install prompt + extra context
 ├── ARCHITECTURE.md           ← how the layers (rules / skills / Superpowers / MCP) compose
 ├── CLAUDE.md.example         ← template for your ~/.claude/CLAUDE.md
-├── skills/                   ← 13 skills, each in its own folder with SKILL.md
+├── ORGANIZE-YOUR-COMPUTER.md ← zero-install whole-computer cleanup prompt (Windows + Mac)
+├── templates/
+│   └── repo-CLAUDE.md        ← per-repo CLAUDE.md template
+├── skills/                   ← 14 skills, each in its own folder with SKILL.md
+│   ├── setup-doctor/         ← the installed version of the cleanup system
 │   ├── project-scaffolder/
 │   ├── project-manager/
 │   ├── ship/
@@ -283,15 +307,15 @@ claude-code-starter-kit/
 
 ## Required dependencies
 
-- **[Claude Code](https://claude.com/claude-code)** — the CLI / VS Code extension this is built for. The kit also works inside any agentic CLI that respects markdown skills and rules (Codex, etc.).
-- **[Superpowers](https://github.com/obra/superpowers)** by Obra — **install this first.** Provides the `superpowers:brainstorming`, `superpowers:writing-plans`, `superpowers:subagent-driven-development`, and related skills that `project-manager` and `ship` invoke. Without Superpowers, the workflow chain degrades gracefully (Claude will narrate the steps) but you lose most of the value.
+- **[Claude Code](https://claude.com/claude-code)** - the CLI / VS Code extension this is built for. The kit also works inside any agentic CLI that respects markdown skills and rules (Codex, etc.).
+- **[Superpowers](https://github.com/obra/superpowers)** by Obra - **install this first.** Provides the `superpowers:brainstorming`, `superpowers:writing-plans`, `superpowers:subagent-driven-development`, and related skills that `project-manager` and `ship` invoke. Without Superpowers, the workflow chain degrades gracefully (Claude will narrate the steps) but you lose most of the value.
 
 Optional:
 
-- **[Perplexity API key](https://www.perplexity.ai/settings/api)** — required only for the `research` skill. Add to `~/.claude/.secrets.env` as `PERPLEXITY_API_KEY=...` or export it.
-- **[GitHub CLI](https://cli.github.com/)** — used by `ship` and `project-manager` for PR creation, status checks, and merges. `gh auth login` once.
-- **[`code-review-graph`](https://pypi.org/project/code-review-graph/)** — the MCP knowledge-graph server behind the four code-graph skills (`explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`). Runs via `uvx code-review-graph serve`; register it at user scope in `~/.claude.json` so it's available in every repo. Without it those four skills have nothing to drive; the rest of the kit is unaffected.
-- **Codex plugin** (optional) — `review-changes` and `scaffold-repo` reference `/codex:review` / `/codex:adversarial-review` for an independent adversarial review pass. If you don't use Codex, treat those as "run a deeper review" prompts — nothing breaks.
+- **[Perplexity API key](https://www.perplexity.ai/settings/api)** - required only for the `research` skill. Add to `~/.claude/.secrets.env` as `PERPLEXITY_API_KEY=...` or export it.
+- **[GitHub CLI](https://cli.github.com/)** - used by `ship` and `project-manager` for PR creation, status checks, and merges. `gh auth login` once.
+- **[`code-review-graph`](https://pypi.org/project/code-review-graph/)** - the MCP knowledge-graph server behind the four code-graph skills (`explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`). Runs via `uvx code-review-graph serve`; register it at user scope in `~/.claude.json` so it's available in every repo. Without it those four skills have nothing to drive; the rest of the kit is unaffected.
+- **Codex plugin** (optional) - `review-changes` and `scaffold-repo` reference `/codex:review` / `/codex:adversarial-review` for an independent adversarial review pass. If you don't use Codex, treat those as "run a deeper review" prompts - nothing breaks.
 
 ---
 
@@ -315,7 +339,7 @@ The fastest way to make these your own:
 
 **"The skill isn't triggering when I expect."** Read the skill's frontmatter `description` field. The triggering language is in there. If your wording is too far from what the description names, the skill won't fire. Either rephrase to match, or edit the description to include your phrasing.
 
-**"The skill triggered but produced something weird."** Read the `SKILL.md` body. It's a markdown spec — Claude follows it. If the spec has gaps, fill them. If the spec is wrong for your case, edit it.
+**"The skill triggered but produced something weird."** Read the `SKILL.md` body. It's a markdown spec - Claude follows it. If the spec has gaps, fill them. If the spec is wrong for your case, edit it.
 
 **"Two skills are fighting for the same trigger."** Edit one of the descriptions to be narrower. Skills cooperate via specificity; the one with the more specific match wins.
 
