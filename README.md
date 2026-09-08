@@ -1,6 +1,6 @@
 # Claude Code Starter Kit
 
-An opinionated discipline and workflow layer for Claude Code. 14 skills, 18 rules, a global `CLAUDE.md` template, a per-repo `CLAUDE.md` template, a whole-computer organization system (the setup doctor), and a copy-paste install prompt.
+An opinionated discipline and workflow layer for Claude Code. 14 skills, 18 rules, a portable voice profile (how your agent talks to you, for any agent), a global `CLAUDE.md` template, a per-repo `CLAUDE.md` template, a whole-computer organization system (the setup doctor), and a copy-paste install prompt.
 
 This is an opinionated discipline and workflow layer for Claude Code. You get 14 skills (`setup-doctor`, `project-scaffolder`, `project-manager`, `ship`, `session-handoff`, `daily-review`, `weekly-review`, `skill-creator`, `research`, `scaffold-repo`, plus four code-knowledge-graph skills: `explore-codebase`, `debug-issue`, `refactor-safely`, `review-changes`), 18 rules covering communication, git, testing, parallel sessions, autopilot scope checks, code-graph usage, foot-gun gating, session-close auditing, and the rest of the daily friction surface, plus a global `CLAUDE.md` template and a copy-paste install prompt. It sits on top of [Obra's Superpowers plugin](https://github.com/obra/superpowers), which provides the brainstorm-to-plan-to-execute-to-review chain. Superpowers is the engine. This kit is the operating system around it. The whole thing has been refined over roughly six months of daily use by one builder who works entirely through Claude Code conversations rather than typing code by hand, often running multiple parallel sessions across many repos.
 
@@ -48,6 +48,18 @@ If your repos are scattered - some on the Desktop, some in Documents, some where
 - **[templates/repo-CLAUDE.md](./templates/repo-CLAUDE.md)** - the per-repo `CLAUDE.md` template (what the project is, the commands, the sharp edges) every repo should carry.
 
 Once everything lives in one flat root, the natural next step is running multiple Claude Code windows in parallel with git worktrees + an orchestrator conversation - that method lives in its own repo: **[claude-code-orchestrator](https://github.com/RobBrautigam/claude-code-orchestrator)**. The two repos are designed as a pair: this kit sets up the machine and the discipline layer; the orchestrator repo scales you to many parallel sessions.
+
+---
+
+## The voice profile (how your agent talks to you)
+
+If you only take one thing from this repo, take this. **[voice-profile/](./voice-profile/)** is a portable standard for how an AI agent writes to you: verdict first, plain English with every piece of jargon paired to its meaning, no paragraph over two lines, real bullets, one question per message, a recommendation on top of every set of options, and always one next action you can do in under two minutes. It ships with a one-page rationale (why this shape works for a brain whose attention floods easily, ADHD or not), a before-and-after example, and drop-ins for every agent: a Claude Code rule, a `CLAUDE.md` snippet, an `AGENTS.md` snippet for Codex and friends, and a system-prompt block for Grok, a custom GPT, or a local model.
+
+- **[voice-profile/INSTALL.md](./voice-profile/INSTALL.md)** - three steps, any agent, ten minutes including the test.
+- **[voice-profile/VOICE-PROFILE.md](./voice-profile/VOICE-PROFILE.md)** - the standard and the reasoning.
+- **[voice-profile/EXAMPLE-before-and-after.md](./voice-profile/EXAMPLE-before-and-after.md)** - the same answer in the default register and in this one.
+
+The kit's own [`rules/communication-style.md`](./rules/communication-style.md) is the short form of the same profile; the drop-in replaces it.
 
 ---
 
@@ -218,7 +230,7 @@ Rules auto-load into every Claude Code conversation that uses your global config
 
 | Rule | What it enforces | Why it matters |
 |---|---|---|
-| [communication-style](./rules/communication-style.md) | No em dashes, no buzzwords, no preamble, no emojis; direct peer tone, lead with substance. | Prevents the default LLM register (throat-clearing, em-dash addiction, "just", "robust", "seamless", fake enthusiasm) from polluting every response. That register signals AI-generated content, wastes the reader's time, and erodes trust in the assistant's actual judgment. The ban list is concrete because vague style guidance gets ignored. |
+| [communication-style](./rules/communication-style.md) | No em dashes, no buzzwords, no preamble, no emojis; direct peer tone, lead with substance. The full version, with the paragraph law, one-ask-per-message and the rationale, is the [voice profile](./voice-profile/). | Prevents the default LLM register (throat-clearing, em-dash addiction, "just", "robust", "seamless", fake enthusiasm) from polluting every response. That register signals AI-generated content, wastes the reader's time, and erodes trust in the assistant's actual judgment. The ban list is concrete because vague style guidance gets ignored. |
 | [brainstorming-question-filter](./rules/brainstorming-question-filter.md) | Every brainstorming question leads with a recommendation; pure-options menus and `AskUserQuestion` popup spam are banned. | Stops the failure mode where brainstorming devolves into Claude listing three options and the user doing the synthesis, which delegates the expensive thinking back to the user. Also stops the six-popup-per-session `AskUserQuestion` pattern that destroys conversational rhythm. Forces Claude to make the engineering call and surface it for redirect rather than punting. |
 | [pushback-on-request](./rules/pushback-on-request.md) | When the user asks to be challenged, deliver the strongest counter-argument, riskiest assumption, and one concrete failure mode; no validation dressed as critique. | Stops the default LLM tendency to perform skepticism while actually agreeing, which makes "push back on this" useless. Also caps the failure mode in the other direction: manufactured contrarianism that turns into a four-message debate after the user has already decided. One sharp pushback, user decides, execute. |
 | [best-of-best-modeling](./rules/best-of-best-modeling.md) | Benchmark every architecture, UX, and API choice against Linear, Stripe, Vercel, Anthropic, Notion, and the rest of the actual bar-setters. | Blocks cargo-culted, dated, or "good enough" patterns from sneaking into premium products. Without an explicit reference set, recommendations regress to whatever the model saw most often in training, which is usually a decade out of date. The rule forces the comparison to be named in the recommendation itself, so weak suggestions get caught before they ship. |
@@ -265,6 +277,11 @@ claude-code-starter-kit/
 ├── ORGANIZE-YOUR-COMPUTER.md ← zero-install whole-computer cleanup prompt (Windows + Mac)
 ├── templates/
 │   └── repo-CLAUDE.md        ← per-repo CLAUDE.md template
+├── voice-profile/            ← how your agent talks to you; portable to any agent
+│   ├── VOICE-PROFILE.md      ← the standard + the anti-ADHD rationale
+│   ├── INSTALL.md            ← three steps
+│   ├── EXAMPLE-before-and-after.md
+│   └── drop-ins/             ← Claude Code rule, CLAUDE.md + AGENTS.md snippets, system prompt
 ├── skills/                   ← 14 skills, each in its own folder with SKILL.md
 │   ├── setup-doctor/         ← the installed version of the cleanup system
 │   ├── project-scaffolder/
